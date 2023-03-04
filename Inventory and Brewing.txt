@@ -1,0 +1,130 @@
+class Program
+{
+    static void Main(string[] args)
+    {
+        // start the inventory list and add some ingredients to it.
+        List<Ingredient> inventory = new List<Ingredient>();
+        inventory.Add(new Ingredient("Mandrake Root", 5));
+        inventory.Add(new Ingredient("Dragon's Blood", 3));
+        inventory.Add(new Ingredient("Eye of Newt", 10));
+
+        // start the potions list and add some potions to it.
+        List<Potion> potions = new List<Potion>();
+        potions.Add(new Potion("Healing Potion", new List<Ingredient> { new Ingredient("Mandrake Root", 1), new Ingredient("Dragon's Blood", 1) }));
+        potions.Add(new Potion("Invisibility Potion", new List<Ingredient> { new Ingredient("Eye of Newt", 3), new Ingredient("Mandrake Root", 2) }));
+
+
+        while (true)
+        {
+            // print out the current inventory.
+            Console.WriteLine("Inventory:");
+            foreach (Ingredient ingredient in inventory)
+            {
+                Console.WriteLine($"{ingredient.Name}: {ingredient.Amount}");
+            }
+            Console.WriteLine();
+
+            // print out the list of potions and whether or not they can be brewed with the current inventory.
+            Console.WriteLine("Potions:");
+            foreach (Potion otherPotion in potions)
+            {
+                Console.WriteLine($"{otherPotion.Name}: {(otherPotion.CanBrew(inventory) ? "Can brew" : "Cannot brew")}");
+            }
+            Console.WriteLine();
+
+            // which potion you want to brew.
+            Console.Write("What potion do you want to brew? ");
+            string potionName = Console.ReadLine();
+
+            // find the potion in the list of potions.
+            Potion potion = potions.Find(p => p.Name == potionName);
+
+            // if the potion exists and can be brewed with the current inventory, brew it and print a success message.
+            if (potion != null && potion.CanBrew(inventory))
+            {
+                potion.Brew(inventory);
+                Console.WriteLine($"You have brewed a {potion.Name}!");
+            }
+            // Otherwise, print a failure message.
+            else
+            {
+                Console.WriteLine("You cannot brew that potion.");
+            }
+            Console.WriteLine();
+        }
+    }
+}
+
+class Ingredient
+{
+    // properties for the name and amount of the ingredient.
+    public string Name { get; set; }
+    public int Amount { get; set; }
+
+    // Constructor to set the name and amount of the ingredient.
+    public Ingredient(string name, int amount)
+    {
+        Name = name;
+        Amount = amount;
+    }
+
+    // use an  amount of the ingredient, returning true if there was enough of the ingredient to use.
+    public bool Use(int amount)
+    {
+        if (Amount >= amount)
+        {
+            Amount -= amount;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+}
+
+class Potion
+{
+    // properties for the name of the potion and the ingredients needed to brew it.
+    public string Name { get; set; }
+    public List<Ingredient> Ingredients { get; set; }
+
+    // constructor to set the name and ingredients of the potion.
+    public Potion(string name, List<Ingredient> ingredients)
+    {
+        Name = name;
+        Ingredients = ingredients;
+    }
+
+    // check if the potion can be brewed with the given inventory.
+    public bool CanBrew(List<Ingredient> inventory)
+    {
+        foreach (Ingredient ingredient in Ingredients)
+        {
+            // Check if there is enough of each ingredient in the inventory.
+
+
+            if (!inventory.Exists(i => i.Name == ingredient.Name && i.Amount >= ingredient.Amount))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Brew the potion using the required ingredients from the inventory
+    public void Brew(List<Ingredient> inventory)
+    {
+        foreach (Ingredient ingredient in Ingredients)
+        {
+            Ingredient inventoryIngredient = inventory.Find(i => i.Name == ingredient.Name);
+            if (inventoryIngredient != null)
+            {
+                inventoryIngredient.Use(ingredient.Amount);
+            }
+        }
+        // Add the brewed potion to the inventory
+        inventory.Add(new Ingredient(Name, 1));
+    }
+}
+
